@@ -1,6 +1,9 @@
 {
-  "name": "free_ss",
+  "name": "free-ss",
   "description": "free shadowsocks config sync",
+  "bin": {
+    "free-ss": "./free_ss.js"
+  },
   "version": "0.1.0",
   "homepage": "https://github.com/gucong3000/free_ss",
   "author": "gucong (https://github.com/gucong3000)",
@@ -21,18 +24,24 @@
     }
   ],
   "dependencies": {
-    "fs-extra": "^3.0.1",
-    "jsdom": "^11.1.0",
-    "request": "^2.81.0"
+    "fs-extra": "^4.0.2",
+    "jsdom": "^11.3.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^4.10.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1"
+  },
   "bugs": {
     "url": "https://github.com/gucong3000/free_ss/issues"
   },
   "main": "free_ss.js",
   "scripts": {
-    "start": "node free_ss.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pretest": "eslint .",
+    "test": "node . --cow --ss"
   },
   "license": "MIT"
 }

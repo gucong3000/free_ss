@@ -1,0 +1,21 @@
+# EditorConfig is awesome: http://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = tab
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{cmd,bat}]
+end_of_line = crlf
+
+[README.md]
+tab_width = 2
+
+[{package.json,.travis.yml,appveyor.yml}]
+indent_style = space
+indent_size = 2
