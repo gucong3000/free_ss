@@ -2,6 +2,7 @@
 
 "use strict";
 const path = require("path");
+const got = require("got");
 const os = require("os");
 const fs = require("fs-extra");
 const cowRcPath = os.platform() === "win32" ? "rc.txt" : path.join(os.homedir(), "~/.cow/rc");
@@ -11,8 +12,8 @@ const { JSDOM } = require("jsdom");
 // 可以抓取SS账号的网页，及其CSS选择符
 const srvs = {
 	// "http://www.yaozeyuan.online/whitelist/": "table",
-	"https://freessr.win": ".text-center",
 	"https://ss.ishadowx.net": "#portfolio .hover-text",
+	"https://freessr.win": ".text-center",
 };
 
 // 中文所对应的配置项key名
@@ -185,8 +186,35 @@ async function cow (servers) {
 	return config;
 }
 
-function getConfig () {
-	return getServers().then(format);
+function getServerFromCI () {
+	if (process.env.CI) {
+		return;
+	}
+	return got("https://ci.appveyor.com/api/projects/gucong3000/free-ss/artifacts/gui-config.json", {
+		json: true,
+	}).then(config => config.body.configs);
+}
+
+async function getConfig () {
+	let [
+		newServers,
+		oldServers,
+	] = await Promise.all([
+		getServers(),
+		getServerFromCI(),
+	]);
+
+	if (oldServers) {
+		oldServers = oldServers.filter(oldServer => (
+			!newServers.some(newServer => (
+				newServer.server === oldServer.server && newServer.server_port === oldServer.server_port
+			))
+		));
+		if (oldServers.length) {
+			newServers = newServers.concat(oldServers);
+		}
+	}
+	return format(newServers);
 }
 
 if (process.mainModule === module) {
