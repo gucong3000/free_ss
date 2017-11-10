@@ -11,7 +11,7 @@ const { JSDOM } = require("jsdom");
 
 // 可以抓取SS账号的网页，及其CSS选择符
 const srvs = {
-	// "http://www.yaozeyuan.online/whitelist/": "table",
+	"http://www.yaozeyuan.online/whitelist/": "table",
 	"https://ss.ishadowx.net": "#portfolio .hover-text",
 	"https://freessr.win": ".text-center",
 };
