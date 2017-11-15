@@ -116,6 +116,7 @@ function getServers () {
 				server.server_port = server.server_port ? +server.server_port : 443;
 				server.server = server.server.toLowerCase();
 				server.method = server.method ? server.method.toLowerCase() : "aes-256-cfb";
+				server.group = "free-ss";
 				return true;
 			}
 		})
@@ -145,13 +146,21 @@ async function format (servers) {
 }
 
 async function ss (servers) {
-	const config = await fs.readJSON(ssRcPath).catch(() => ({
+	const config = await fs.readJSON(ssRcPath).then(config => {
+		if (Array.isArray(config.configs)) {
+			config.configs = config.configs.filter(
+				server => server.group !== "free-ss"
+			).concat(servers);
+		} else {
+			config.configs = servers;
+		}
+		return config;
+	}, () => ({
 		index: -1,
 		shareOverLan: true,
 		strategy: "com.shadowsocks.strategy.ha",
+		configs: servers,
 	}));
-
-	config.configs = servers;
 
 	await fs.writeJSON(ssRcPath, config, {
 		EOL: os.EOL,
