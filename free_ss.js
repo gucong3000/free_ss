@@ -5,7 +5,7 @@ const path = require("path");
 const got = require("got");
 const os = require("os");
 const fs = require("fs-extra");
-const cowRcPath = os.platform() === "win32" ? "rc.txt" : path.join(os.homedir(), "~/.cow/rc");
+const cowRcPath = os.platform() === "win32" ? "rc.txt" : path.join(os.homedir(), ".cow/rc");
 const ssRcPath = "gui-config.json";
 const { JSDOM } = require("jsdom");
 
@@ -171,15 +171,18 @@ async function ss (servers) {
 
 async function cow (servers) {
 	let config = await fs.readFile(cowRcPath, "utf-8").catch(() => (
-		[
-			"listen = http://0.0.0.0:1080",
-			"loadBalance = latency",
-		].join(os.EOL)
+		""
 	));
 
 	config = config.replace(/^#\s*free-ss\s*start\s*$[\s\S]*?^#\s*free-ss\s*end\s*$/igm, "").trim();
-	config += [
-		"",
+	if (!config) {
+		config = [
+			"listen = http://0.0.0.0:1080",
+			"loadBalance = latency",
+		].join(os.EOL);
+	}
+	config = [
+		config,
 		"",
 		"# free-ss start",
 	].concat(servers.map(server => (
@@ -188,8 +191,6 @@ async function cow (servers) {
 		"# free-ss end",
 		"",
 	).join(os.EOL);
-
-	config += os.EOL;
 
 	await fs.writeFile(cowRcPath, config);
 	return config;
@@ -201,7 +202,7 @@ function getServerFromCI () {
 	}
 	return got("https://ci.appveyor.com/api/projects/gucong3000/free-ss/artifacts/gui-config.json", {
 		json: true,
-	}).then(config => config.body.configs);
+	}).then(config => config.body.configs).catch(() => ({}));
 }
 
 async function getConfig () {
