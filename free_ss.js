@@ -46,7 +46,7 @@ function tabel2config (table) {
 
 function nodeText2config (node) {
 	// 提取dom元素中的信息
-	let text = (node.innerText || node.textContent).trim();
+	const text = (node.innerText || node.textContent).trim();
 	if (/\n/.test(text)) {
 		// 一般的正常情况，按换行符分隔字符串即可
 		node = text.split(/\s*\n\s*/g);
@@ -66,8 +66,8 @@ function nodeText2config (node) {
 	node.forEach(inf => {
 		// 按冒号分隔字符串
 		inf = inf.split(/\s*[:：]\s*/g);
-		let key = getConfigKey(inf[0]);
-		let val = inf[1];
+		const key = getConfigKey(inf[0]);
+		const val = inf[1];
 		if (key && val) {
 			server[key] = val;
 		}
@@ -128,20 +128,17 @@ async function format (servers) {
 		throw new Error("未找到任何服务器。");
 	}
 
-	let [
+	const [
 		isCow,
 		isSs,
 	] = await Promise.all([
 		process.argv.includes("--cow") || fs.exists(cowRcPath),
 		process.argv.includes("--ss") || fs.exists(ssRcPath),
 	]);
-	if (!(isCow || isSs)) {
-		isSs = true;
-	}
 
 	await Promise.all([
 		isCow && cow(servers),
-		isSs && ss(servers),
+		(isSs || !(isCow || isSs)) && ss(servers),
 	]);
 }
 
@@ -189,7 +186,7 @@ async function cow (servers) {
 		`proxy = ss://${server.method}:${server.password}@${server.server}:${server.server_port}`
 	))).concat(
 		"# free-ss end",
-		"",
+		""
 	).join(os.EOL);
 
 	await fs.writeFile(cowRcPath, config);
